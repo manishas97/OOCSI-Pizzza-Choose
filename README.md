@@ -1,4 +1,4 @@
-# oocsi-pizzaChoose
+# oocsi-pizzaChoose (WORK IN PROGRESS)
 Chooses a random pizza and orders it using the pizzaMail service 🍕
 
 ## Setting up the bot
