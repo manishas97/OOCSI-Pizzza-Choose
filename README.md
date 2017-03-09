@@ -15,7 +15,8 @@ Lastly defnine the pizzas from which a pizza can be chosen.
 This is done by creating a pizza object and adding it to the list of pizzas. This is done within the event handler. For example:
 
 ```java
-pizzas.add(new Pizza("Hawai"));```
+pizzas.add(new Pizza("Hawai"));
+```
 
 Where hawai is the name of the pizza.
 
