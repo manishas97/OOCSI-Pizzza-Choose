@@ -66,6 +66,8 @@ public void setup() {
     // Actually define available Pizzas and Pizzerias
     definePizzas();
     definePizzerias();
+	
+	oocsi.channel(choosePizzaChannel).data("response", "Setup of the pizzaChoose service is complete, waiting for events to happen.").send();
 }
 
 /**
@@ -80,11 +82,13 @@ void choosePizzaEvent(OOCSIEvent event){
     
     // buttonPressed is called when the variable buttonPress is in the event
     if (event.has("buttonPress")) {
+		oocsi.channel(choosePizzaChannel).data("response", "The button has been pressed.").send();
         buttonPressed();
     }
     
     //modifySettings is called when the variable settings is in the event.
     if (event.has("settings")) {
+		oocsi.channel(choosePizzaChannel).data("response", "Settings will be updated").send();
         modifySettings(event);
     }
 
@@ -113,6 +117,8 @@ void modifySettings(OOCSIEvent event){
             allergies.add(allergy);
         }
     }
+	
+	oocsi.channel(choosePizzaChannel).data("response", "Settings have been updated. Address: " + address + " twitterAccount: " + twitterAccount + " allergies: " allergies.toString()).send();
 }
 
 /**
@@ -146,8 +152,7 @@ void waitForNext(){
     
     // Count to 10, before the order is actually placed
     for (int i = 0; i <= 100; i++) {
-        // Every step takes 100 ms
-        delay(100);
+        delay(300);
         System.out.print(i + " - ");
 
         // Keep tracking if pizza's are being added to the queue
@@ -160,6 +165,7 @@ void waitForNext(){
     
     // Place the order when the timer completes
     System.out.println("Placing the order! \n");
+	oocsi.channel(choosePizzaChannel).data("response", "The order has been collected and will now be placed").send();
     order();
 
     // Allow new threads to be spawned
@@ -218,6 +224,7 @@ void order(){
     for(Pizza pizza : order.keySet()){
         pizzaNames += "- " + order.get(pizza) + "x " + pizza.getName() + "\n";  
     }
+	
     
     //Order the pizza using the pizzaMail module
     OOCSICall orderCall = oocsi.call("PizzaMail", 20000)
@@ -226,6 +233,7 @@ void order(){
         .data("content", "Location " + address + "wants to order the following pizzas: " + pizzaNames + "\n\n Kind regards,\n The PizzaButton Team");
     
     // Send the email and wait for response
+	oocsi.channel(choosePizzaChannel).data("response", "The pizza is ordered now, waiting for a response from the pizza place").send();
     System.out.println("Sending the mail containing the order and waiting for a response from the mail module... \n");
     orderCall.sendAndWait();
     
@@ -238,10 +246,12 @@ void order(){
             // Email was sent!
             System.out.println("The email was sent!");
             System.out.println("Id in order: " + response.getString("id") + "\n");
+			oocsi.channel(choosePizzaChannel).data("response", "The following pizzas have been ordered " + pizzaNames).send();
         }
         else {
             // PizzaMail threw an error whilst sending, let us try again
             System.out.println("The mail could not be sent:" + response + "\n");
+			oocsi.channel(choosePizzaChannel).data("response", "Sorry, something is going wrong while sending the email, please check whether your oocsi-pizzamail is configured correctly" + pizzaNames).send();
         }
     }
 }
@@ -261,7 +271,7 @@ void feedbackEvent(OOCSIEvent event) {
     // Check the response
     if (event.getString("reply").toLowerCase().indexOf("true") != -1) {
         // If true is replied, the order is completed, and we wait for the pizza!
-        oocsi.channel(choosePizzaChannel).data("success", "Order accepted").send();
+        oocsi.channel(choosePizzaChannel).data("response", "Order accepted :D").send();
         System.out.println("Order accepted");
         
         // Also let the user know via Twitter that Pizza is imminent
@@ -272,7 +282,7 @@ void feedbackEvent(OOCSIEvent event) {
     }
     else {
         // If false is returned, we forward that message to the feedback channel
-        oocsi.channel(choosePizzaChannel).data("success", "Order failed, trying somehwere else").send();
+        oocsi.channel(choosePizzaChannel).data("response", "Order failed, trying somehwere else").send();
         System.out.println("Order failed, trying again.");
         
         // Also, we place the order again
