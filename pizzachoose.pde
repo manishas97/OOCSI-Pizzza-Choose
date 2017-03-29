@@ -86,12 +86,6 @@ void modifySettings(OOCSIEvent event){
     if(event.has("twitterAccount")) {
         twitterAccount = event.getString("twitterAccount");
     }
-    if(event.has("feedbackChannel")) {
-        feedbackChannel = event.getString("feedbackChannel");
-    }
-    if(event.has("choosePizzaChannel")) {
-        choosePizzaChannel = event.getString("choosePizzaChannel");
-    }
     if(event.has("allergies")) {
         for (String allergy : event.getString("allergies").split(" ")) {
             allergies.clear();
