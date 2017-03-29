@@ -11,7 +11,6 @@ import java.util.*;
     String oocsiServer = "oocsi.id.tue.nl";
     String feedbackChannel = "choosePizzaService"; //Channel on which we receive feedback from the email module
     String choosePizzaChannel = "choosePizza"; //Channel on which we listen for the button
-    String location = null;
     String address = null;
     String twitterAccount = null;
     
@@ -49,15 +48,24 @@ import java.util.*;
           buttonPressed();
         }
         
-        if (event.has("settings") {
+        if (event.has("settings")) {
            modifySettings(event); 
         }
 
     }
     
     void modifySettings(OOCSIEvent event){
-      if(event.has("location")){
-         location = event.getString("location");
+      if(event.has("address")){
+         address = event.getString("address");
+      }
+      if(event.has("twitterAccount")){
+         twitterAccount = event.getString("twitterAccount");
+      }
+      if(event.has("feedbackChannel")){
+         feedbackChannel = event.getString("feedbackChannel");
+      }
+      if(event.has("choosePizzaChannel")){
+         choosePizzaChannel = event.getString("choosePizzaChannel");
       }
     }
 
@@ -114,7 +122,7 @@ import java.util.*;
                 // email subject
                 .data("subject", "Pizza order")
                 // email content
-                .data("content", "Location " + location + "want to order a the following pizzas: " + pizzaNames);
+                .data("content", "Location " + address + "want to order a the following pizzas: " + pizzaNames);
         // Send the email
         System.out.println("Sending the mail containing the order and waiting for a response from the mail module");
         orderCall.sendAndWait();
