@@ -1,3 +1,5 @@
+ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
+
 void definePizzas(){
     pizzas.add(new Pizza("Hawai", new String[] {"Gluten", "Milk"}));
     pizzas.add(new Pizza("Salami", new String[] {"Gluten", "Milk", "Soy"}));

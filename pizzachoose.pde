@@ -22,7 +22,7 @@ import java.util.*;
     boolean waitingForNext = false; //Stores whether we are already collecting an order
     ArrayList<ArrayList<Pizza>> ordered = new ArrayList<ArrayList<Pizza>>(); //Stores past orders
     HashMap<String,ArrayList<Pizza>> ordersTracker = new HashMap<String, ArrayList<Pizza>>(); //Connects an id to past order
-    ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
+
     
     public void settings() {
         size(500, 500);
@@ -36,7 +36,9 @@ import java.util.*;
         oocsi.subscribe(choosePizzaChannel, "choosePizzaEvent");
         System.out.println("Start");
         
-        // Actually define available Pizza's
+        // Actually define available Pizzas and Pizzerias
+        definePizzas();
+        definePizzerias();
     }
 
     //Event listener to receive the button presses and setting changes

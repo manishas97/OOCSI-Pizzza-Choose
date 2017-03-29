@@ -1,4 +1,5 @@
 ArrayList<Pizzeria> pizzerias = new ArrayList<Pizzeria>();
+
 void definePizzerias(){
   pizzerias.add(new Pizzeria("Domino's", "eindhoven@dominospizza.nl", new String[]{"Margeritha"}));
 }
