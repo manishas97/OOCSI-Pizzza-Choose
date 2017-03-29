@@ -7,14 +7,6 @@ import java.util.*;
     
     OOCSI oocsi;
 
-    //Settings
-    String oocsiServer = "oocsi.id.tue.nl";
-    String feedbackChannel = "choosePizzaService"; //Channel on which we receive feedback from the email module
-    String choosePizzaChannel = "choosePizza"; //Channel on which we listen for the button
-    String address = null;
-    String twitterAccount = null;
-    
-
     //Global variables
     ArrayList<Pizza> toOrder = new ArrayList<Pizza>(); //Stores the pizzas which need to be ordered
     int userId = 1; //Stores the user id of the sender of the event
@@ -23,6 +15,15 @@ import java.util.*;
     ArrayList<ArrayList<Pizza>> ordered = new ArrayList<ArrayList<Pizza>>(); //Stores past orders
     HashMap<String,ArrayList<Pizza>> ordersTracker = new HashMap<String, ArrayList<Pizza>>(); //Connects an id to past order
     ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
+    
+    //Setting variables, to be set in the setup method
+    String oocsiServer;
+    String feedbackChannel;
+    String choosePizzaChannel;
+    String address;
+    String twitterAccount;
+    ArrayList<String> allergies = new ArrayList<String>();
+   
     
     public void settings() {
         size(500, 500);
@@ -36,7 +37,14 @@ import java.util.*;
         oocsi.subscribe(choosePizzaChannel, "choosePizzaEvent");
         System.out.println("Start");
         
-        // Actually define available Pizza's
+        // Settings
+        oocsiServer = "oocsi.id.tue.nl"; //The OOCSI server you want to listen on. For example: "oocsi.id.tue.nl".
+        feedbackChannel = "choosePizzaService"; //The channel on which we will receive feedback from the email module.
+        choosePizzaChannel = "choosePizza"; //The channel you want to be listening on for calls to this module. For example: "choosePizza".
+        address = null; //The address where the pizzas will have to be delivered. For example: streetname 99 Eindhoven
+        twitterAccount = null; //The Twitter account to which the feedback will be sent. 
+        allergies.add(""); //A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function.
+       
     }
 
     //Event listener to receive the button presses and setting changes
@@ -66,6 +74,12 @@ import java.util.*;
       }
       if(event.has("choosePizzaChannel")){
          choosePizzaChannel = event.getString("choosePizzaChannel");
+      }
+      if(event.has("allergies")){
+          for (String allergy : event.getString("allergies").split(" ")) {
+             allergies.clear();
+             allergies.add(allergy);
+          }
       }
     }
     
@@ -157,7 +171,7 @@ import java.util.*;
         if (event.getString("reply").toLowerCase().indexOf("true")!= -1){
             oocsi.channel(choosePizzaChannel).data("success", "Order accepted").send();
             System.out.println("Order accepted");
-            oocsi.channel("tweetBot").data("tweet", "Hi user " + id + ", your pizza was ordered sucssesfully.").send();
+            oocsi.channel("tweetBot").data("tweet", "Hi @" + twitterAccount + ", your pizza(s) were ordered sucssesfully. Time to get ready for your pizza adventure :D").send();
         }
         // When the order is not exepted we try again at a different pizza place
         else {
