@@ -7,12 +7,17 @@ import java.util.*;
 
 OOCSI oocsi;
 
-//Global variables
-boolean pizzaAdded = false;     //Tracks wheter a new pizza was added to the order to be able to reset the counter
-boolean waitingForNext = false;     //Stores whether we are already collecting an order
+// Global variables
+// Tracks wheter a new pizza was added to the order to be able to reset the counter
+boolean pizzaAdded = false;  
+
+// Stores whether we are already collecting an order
+boolean waitingForNext = false;    
+
+// Stores the amount of times the button is pressed
 int pizzaQueue = 0;
 
-//Setting variables, to be set in the setup method
+// Setting variables, to be set in the setup method
 String oocsiServer;
 String feedbackChannel;
 String choosePizzaChannel;
@@ -32,16 +37,27 @@ public void settings() {
 */
 
 public void setup() {
-    // Settings
-    oocsiServer = "oocsi.id.tue.nl"; //The OOCSI server you want to listen on. For example: "oocsi.id.tue.nl".
-    feedbackChannel = "choosePizzaService"; //The channel on which we will receive feedback from the email module.
-    choosePizzaChannel = "choosePizza"; //The channel you want to be listening on for calls to this module. For example: "choosePizza".
-    address = null; //The address where the pizzas will have to be delivered. For example: streetname 99 Eindhoven
-    twitterAccount = null; //The Twitter account to which the feedback will be sent.
-    allergies.add(""); //A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function.
-
-
-    //Setup oocsi using the variables set in settings
+    // SETTINGS
+    // The OOCSI server you want to listen on. For example: "oocsi.id.tue.nl".
+    oocsiServer = "oocsi.id.tue.nl"; 
+    
+    // The channel on which we will receive feedback from the email module.
+    feedbackChannel = "choosePizzaService";
+    
+    // The channel you want to be listening on for calls to this module. For example: "choosePizza".
+    choosePizzaChannel = "choosePizza"; 
+    
+    // The address where the pizzas will have to be delivered. For example: streetname 99 Eindhoven
+    address = null; 
+    
+    // The Twitter account to which the feedback will be sent.
+    twitterAccount = null;
+    
+    //A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function.
+    allergies.add(""); 
+    
+    // SETUP
+    // Setup oocsi using the variables set in settings
     oocsi = new OOCSI(this, feedbackChannel, oocsiServer);
     oocsi.subscribe(feedbackChannel, "feedbackEvent");
     oocsi.subscribe(choosePizzaChannel, "choosePizzaEvent");
@@ -61,10 +77,12 @@ public void setup() {
 //Event listener to receive the button presses and setting changes
 void choosePizzaEvent(OOCSIEvent event){
     // Splits button presses from setting changes.
+    
     // buttonPressed is called when the variable buttonPress is in the event
     if (event.has("buttonPress")) {
         buttonPressed();
     }
+    
     //modifySettings is called when the variable settings is in the event.
     if (event.has("settings")) {
         modifySettings(event);
@@ -83,10 +101,13 @@ void modifySettings(OOCSIEvent event){
     if(event.has("address")) {
         address = event.getString("address");
     }
+    
     if(event.has("twitterAccount")) {
         twitterAccount = event.getString("twitterAccount");
     }
+    
     if(event.has("allergies")) {
+        // Convert comma-seperated string to list
         for (String allergy : event.getString("allergies").split(" ")) {
             allergies.clear();
             allergies.add(allergy);
@@ -100,10 +121,12 @@ void modifySettings(OOCSIEvent event){
 *  ===================================================
 */
 
-// Adds a pizza to the order or creates a new order if no order exists.
 void buttonPressed(){
-    // Add a pizza to the queue
+    // Increase the pizzaqueue by one pizza
     pizzaQueue++;
+    
+    // Set flag, in order to reset countdown
+    pizzaAdded = true;
 
     // If there is no counter running start the counter
     if (!waitingForNext) {
@@ -117,24 +140,29 @@ void buttonPressed(){
 *  ===================================================
 */
 
-// Countdown as long ass pizzas are being added, else send the order
-//While there are pizzas being added to the toOrder array we keep resetting the counter
-//When the counter is done we sent the complete order (this prevents sending every pizza in a different order)
 void waitForNext(){
+    // Prevent the spawning of new threads
     waitingForNext = true;
+    
+    // Count to 10, before the order is actually placed
     for (int i = 0; i <= 100; i++) {
+        // Every step takes 100 ms
         delay(100);
         System.out.print(i + " - ");
-        i++;
+
+        // Keep tracking if pizza's are being added to the queue
         if (pizzaAdded == true) {
+            // If they are, reset the flag and reset the timer
             i = 0;
             pizzaAdded = false;
         }
     }
-    //Place the order
-    System.out.println("Placing the order");
+    
+    // Place the order when the timer completes
+    System.out.println("Placing the order! \n");
     order();
 
+    // Allow new threads to be spawned
     waitingForNext = false;
 }
 
@@ -193,24 +221,27 @@ void order(){
     
     //Order the pizza using the pizzaMail module
     OOCSICall orderCall = oocsi.call("PizzaMail", 20000)
-    // to address
-    .data("to", "lei.nelissen94@gmail.com")
-    // email subject
-    .data("subject", "Pizza order")
-    // email content
-    .data("content", "Location " + address + "want to order a the following pizzas: " + pizzaNames);
-    // Send the email
-    System.out.println("Sending the mail containing the order and waiting for a response from the mail module");
+        .data("to", pizzeria.getEmail())
+        .data("subject", "Pizza order")
+        .data("content", "Location " + address + "wants to order the following pizzas: " + pizzaNames + "\n\n Kind regards,\n The PizzaButton Team");
+    
+    // Send the email and wait for response
+    System.out.println("Sending the mail containing the order and waiting for a response from the mail module... \n");
     orderCall.sendAndWait();
-    // Wait for response
+    
+    // If response is completed, seperate it
     if (orderCall.hasResponse()) {
+        // Retrieve response
         OOCSIEvent response = orderCall.getFirstResponse();
+        
         if(response.getBoolean("success", false) == true) {
+            // Email was sent!
             System.out.println("The email was sent!");
-            System.out.println("Id in order: " + response.getString("id"));
+            System.out.println("Id in order: " + response.getString("id") + "\n");
         }
         else {
-            System.out.println("The mail could not be send:" + response);
+            // PizzaMail threw an error whilst sending, let us try again
+            System.out.println("The mail could not be sent:" + response + "\n");
         }
     }
 }
@@ -223,19 +254,28 @@ void order(){
 
 //Receive the feedback from the pizzaMail module.
 void feedbackEvent(OOCSIEvent event) {
+    // Get email id
     String id = event.getString("id");
     System.out.println("A response has been received with id: " + id);
-    // When the order is accepted we notify the user
+    
+    // Check the response
     if (event.getString("reply").toLowerCase().indexOf("true") != -1) {
+        // If true is replied, the order is completed, and we wait for the pizza!
         oocsi.channel(choosePizzaChannel).data("success", "Order accepted").send();
         System.out.println("Order accepted");
+        
+        // Also let the user know via Twitter that Pizza is imminent
+        oocsi.channel("tweetBot").data("tweet", "Hi @" + twitterAccount + ", your pizza(s) were ordered sucssesfully. Time to get ready for your pizza adventure :D").send();        
+        
+        // Also reset the Pizza queue for the next Pizza party
         pizzaQueue = 0;
-        oocsi.channel("tweetBot").data("tweet", "Hi @" + twitterAccount + ", your pizza(s) were ordered sucssesfully. Time to get ready for your pizza adventure :D").send();
     }
-    // When the order is not exepted we try again at a different pizza place
     else {
+        // If false is returned, we forward that message to the feedback channel
         oocsi.channel(choosePizzaChannel).data("success", "Order failed, trying somehwere else").send();
         System.out.println("Order failed, trying again.");
+        
+        // Also, we place the order again
         order();
     }
 

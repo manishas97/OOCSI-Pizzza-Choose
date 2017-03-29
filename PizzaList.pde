@@ -1,15 +1,15 @@
 ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
 
 void definePizzas(){
-    pizzas.add(new Pizza("Hawai", new String[] {"Gluten", "Milk"}));
-    pizzas.add(new Pizza("Salami", new String[] {"Gluten", "Milk", "Soy"}));
-    pizzas.add(new Pizza("Fungi", new String[] {"Gluten", "Milk"}));
-    pizzas.add(new Pizza("Americana", new String[] {"Gluten", "Milk", "Soy"}));
-    pizzas.add(new Pizza("Chicken Kebab", new String[] {"Gluten", "Milk", "Soy"}));
-    pizzas.add(new Pizza("Four Cheese", new String[] {"Gluten", "Milk"}));
-    pizzas.add(new Pizza("Margaritha", new String[] {"Gluten", "Milk"}));
-    pizzas.add(new Pizza("Shoarma", new String[] {"Gluten", "Milk", "Soy"}));
-    pizzas.add(new Pizza("Tonno", new String[] {"Gluten", "Milk", "Seafood"}));
+    pizzas.add(new Pizza("Hawai", "Sad", new String[] {"Gluten", "Milk"}));
+    pizzas.add(new Pizza("Salami", "Neutral",new String[] {"Gluten", "Milk", "Soy"}));
+    pizzas.add(new Pizza("Funghi", "Neutral", new String[] {"Gluten", "Milk"}));
+    pizzas.add(new Pizza("Americana", "Sad", new String[] {"Gluten", "Milk", "Soy"}));
+    pizzas.add(new Pizza("Chicken Kebab", "Sad", new String[] {"Gluten", "Milk", "Soy"}));
+    pizzas.add(new Pizza("Four Cheese", "Happy", new String[] {"Gluten", "Milk"}));
+    pizzas.add(new Pizza("Margaritha", "Neutral", new String[] {"Gluten", "Milk"}));
+    pizzas.add(new Pizza("Shoarma", "Sad", new String[] {"Gluten", "Milk", "Soy"}));
+    pizzas.add(new Pizza("Tonno", "Happy", new String[] {"Gluten", "Milk", "Seafood"}));
 }
 
 // Object type to store information about pizzas.
@@ -17,11 +17,13 @@ void definePizzas(){
 public class Pizza {
     // Define object variables
     String name;
+    String mood;
     List<String> allergens;
 
     // Initialise Pizza object
-    public Pizza(String name, String[] allergens) {
+    public Pizza(String name, String mood, String[] allergens) {
         this.name = name;
+        this.mood = mood;
         this.allergens = Arrays.asList(allergens);
     }
 
@@ -30,6 +32,7 @@ public class Pizza {
         return name;
     }
     
+    // Return Pizza mood
     public String getMood(){
         return "Sad";  
     }
@@ -39,17 +42,9 @@ public class Pizza {
         return allergens.toArray(new String[allergens.size()]);
     }
 
-    // Check if Pizza contains a single allergen
-    public boolean hasAllergen(String suppliedAllergen){
-        if(allergens.contains(suppliedAllergen)) {
-            return true;
-        }
-        return false;
-    }
-
     // Check if Pizza contains one or multiple of supplied allergenes
-    public boolean hasAllergenes(String[] suppliedAllergens){
-        if(!Collections.disjoint(allergens, Arrays.asList(suppliedAllergens))) {
+    public boolean hasAllergens(List<String> suppliedAllergens){
+        if(!Collections.disjoint(allergens, suppliedAllergens)) {
             return true;
         }
         return false;
