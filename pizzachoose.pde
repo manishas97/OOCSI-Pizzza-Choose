@@ -11,7 +11,10 @@ import java.util.*;
     String oocsiServer = "oocsi.id.tue.nl";
     String feedbackChannel = "choosePizzaService"; //Channel on which we receive feedback from the email module
     String choosePizzaChannel = "choosePizza"; //Channel on which we listen for the button
-    int pizzaButtonId = 5; //Unique id of the button we listen to
+    String location = null;
+    String address = null;
+    String twitterAccount = null;
+    
 
     //Global variables
     ArrayList<Pizza> toOrder = new ArrayList<Pizza>(); //Stores the pizzas which need to be ordered
@@ -39,26 +42,27 @@ import java.util.*;
 
     //Event listener to receive the button presses
     void choosePizzaEvent(OOCSIEvent event){
-        // Expects to receive the buttonId represented as an integer in the variable user.\
+        // Expects to receive the buttonId represented as an integer in the variable user.
         // user:id(int)
 
-        userId = event.getInt("user", 0);
-        if(!event.has("user")){
-            // Check if event contins the user id
-            // If that is not the case, return error and exit execution
-            System.out.println("The user id was not specified");
-            oocsi.channel("choosePizza").data("pizza", "The user id was not specified").send();
-            return;
+        if (event.has("buttonPress") {
+          buttonPressed();
         }
-        if(userId != pizzaButtonId) {
-            // Check if event contins the correct user id
-            // If that is not the case, return error and exit execution
-            System.out.println("The user id was not correct");
-            oocsi.channel("choosePizza").data("pizza", "The user id was not correct").send();
-            return;
+        
+        if (event.has("settings") {
+           modifySettings(event); 
         }
 
-        //Select a pizza at random from the array pizzas
+    }
+    
+    void modifySettings(OOCSIEvent event){
+      if(event.has("location")){
+         location = event.getString("location");
+      }
+    }
+
+    void buttonPressed(){
+         //Select a pizza at random from the array pizzas
         Random rand = new Random();
         int random = rand.nextInt(pizzas.size());
 
@@ -72,9 +76,7 @@ import java.util.*;
         if (!waitingForNext){
             thread("waitForNext");
         }
-
     }
-
     //While there are pizzas being added to the toOrder array we keep resetting the counter
 //When the counter is done we sent the complete order (this prevents sending every pizza in a different order)
     void waitForNext(){
@@ -112,7 +114,7 @@ import java.util.*;
                 // email subject
                 .data("subject", "Pizza order")
                 // email content
-                .data("content", "User id " + userId + "want to order a the following pizzas: " + pizzaNames);
+                .data("content", "Location " + location + "want to order a the following pizzas: " + pizzaNames);
         // Send the email
         System.out.println("Sending the mail containing the order and waiting for a response from the mail module");
         orderCall.sendAndWait();
