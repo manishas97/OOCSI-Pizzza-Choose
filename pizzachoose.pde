@@ -124,7 +124,8 @@ import java.util.*;
             OOCSIEvent response = orderCall.getFirstResponse();
             if(response.getBoolean("success", false) == true){
                 System.out.println("The email was sent!");
-                ordersTracker.put(response.getString("id"), toOrder);
+                ArrayList<Pizza> copy = new ArrayList<Pizza>(toOrder);
+                ordersTracker.put(response.getString("id"), copy);
                 System.out.println("Id in order: " + response.getString("id") + " OrdersTracker to string: " + ordersTracker.toString());
             }
             else {
