@@ -1,6 +1,9 @@
+// Intialise global pizzalist variable
 ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
 
+// Define avaiable pizzas
 void definePizzas(){
+    // Every pizza is defined as follows: Pizza(name, mood, allergens[])
     pizzas.add(new Pizza("Hawai", "Sad", new String[] {"Gluten", "Milk"}));
     pizzas.add(new Pizza("Salami", "Neutral",new String[] {"Gluten", "Milk", "Soy"}));
     pizzas.add(new Pizza("Funghi", "Neutral", new String[] {"Gluten", "Milk"}));
@@ -38,8 +41,8 @@ public class Pizza {
     }
 
     // Return Pizza allergens
-    public String[] getAllergens(){
-        return allergens.toArray(new String[allergens.size()]);
+    public List<String> getAllergens(){
+        return allergens;
     }
 
     // Check if Pizza contains one or multiple of supplied allergenes
