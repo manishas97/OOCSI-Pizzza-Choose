@@ -49,46 +49,27 @@ Also make sure you have installed the [OOCSI-processing](https://github.com/iddi
 ``` java
 import nl.tue.id.oocsi.*;
 
-// ******************************************************
-// Example code for using the pizzaChoose service
-// ******************************************************
-
-OOCSI oocsi;
-
-//Settings, these need to match the settings in the pizzaChoose service
-String oocsiServer = "oocsi.id.tue.nl"; // Your oocsi server
-String oocsiChannel = "choosePizza";    // The channel on which the pizzaChoose service is listening
-
 void setup() {
-  
   size(200, 200);
-  background(120);
-  frameRate(10);
 
   // Initializing OOCSI
-  oocsi = new OOCSI(this, "yourName", oocsiServer);
+  OOCSI oocsi = new OOCSI(this, "yourName", "oocsi.id.tue.nl");
   // Subscribe to the responses send by the pizzaChoose module
-  oocsi.subscribe(oocsiChannel, "responseEvent");
-  
+  oocsi.subscribe("choosePizza", "responseEvent");
+
   // Change a setting of the pizzaChoose module. In this case the twitter account.
   oocsi.channel("choosePizza").data("settings", "").data("twitterAccount" , "yourTwitter").send();
-  
-  // Simulate a buttonpress to order a pizza
-  oocsi.channel(oocsiChannel).data("buttonPress", "").send();
-  
-}
 
+  // Simulate a buttonpress to order a pizza
+  oocsi.channel("choosePizza").data("buttonPress", "").send();
+
+}
 
 // The event listener that listens to a response from the pizzaChoose service
 void responseEvent(OOCSIEvent event){
-
     // If we receive a response we print it
     if (event.has("response")) {
       System.out.println(event.getString("response"));
     }
-}
-
-void draw() {
-
 }
 ```
