@@ -6,7 +6,7 @@ Chooses a random pizza and orders it using the pizzaMail service 🍕
 A new instance of this serice has to be ran for every household/location
 
 ## Setting up the service
-To use the service, open up the Processing file and make sure you set the following settings:
+To use the service, make a local copy of this repository. Then open up the "pizzachoose.pde" Processing file and make sure you set the following settings:
 
 * **oocsiServer** (String): The OOCSI server you want to listen on. For example: "oocsi.id.tue.nl".
 * **choosePizzaChannel** (String): The channel you want to be listening on for calls to this module. For example: "choosePizza".
