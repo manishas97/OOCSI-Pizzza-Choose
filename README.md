@@ -1,6 +1,6 @@
 
 
-# oocsi-pizzaChoose (WORK IN PROGRESS)
+# oocsi-pizzaChoose
 Chooses a random pizza and orders it using the pizzaMail service 🍕
 
 A new instance of this serice has to be ran for every household/location
@@ -13,9 +13,9 @@ To use the service, make a local copy of this repository. Then open up the "pizz
 * **feedBackChannel** (String): The channel on which we will receive feedback from the email module.
 * **address** (String): The address where the pizzas will have to be delivered. For example: streetname 99 Eindhoven
 * **twitterAccount** (String): The Twitter account to which the feedback will be sent. 
-* **Allergies** (ArrayList`<String>`): A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function. For example: "allergies.add("Soy");".
+* **allergies** (ArrayList`<String>`): A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function. For example: "allergies.add("Soy");".
 
-Alternatively these settings can be set over OOCSI once the service is running. For allergies multiple allergies seperated by a spacebar can be specified at once over OOCSI.
+Alternatively the settings for allergies, address and twitter account can also set over OOCSI once the service is running. For allergies multiple allergies seperated by a spacebar can be specified at once over OOCSI.
 To change these settings over OOCSI sent the following command where SETTING is one of the above defined settings and VALUE is the corresponding value for this setting:
 
 ```java
