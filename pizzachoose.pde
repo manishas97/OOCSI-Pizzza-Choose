@@ -39,21 +39,21 @@ import java.util.*;
         // Actually define available Pizza's
     }
 
-    //Event listener to receive the button presses
+    //Event listener to receive the button presses and setting changes
     void choosePizzaEvent(OOCSIEvent event){
-        // Expects to receive the buttonId represented as an integer in the variable user.
-        // user:id(int)
-
-        if (event.has("buttonPress") {
+        //Splits button presses from setting changes. 
+        //buttonPressed is called when the variable buttonPress is in the event
+        if (event.has("buttonPress")) {
           buttonPressed();
         }
-        
+        //modifySettings is called when the variable settings is in the event.
         if (event.has("settings")) {
            modifySettings(event); 
         }
 
     }
     
+    // Modifies the settings as specified in the event
     void modifySettings(OOCSIEvent event){
       if(event.has("address")){
          address = event.getString("address");
@@ -68,7 +68,8 @@ import java.util.*;
          choosePizzaChannel = event.getString("choosePizzaChannel");
       }
     }
-
+    
+    // Adds a pizza to the order or creates a new order if no order exists.
     void buttonPressed(){
          //Select a pizza at random from the array pizzas
         Random rand = new Random();
@@ -85,8 +86,10 @@ import java.util.*;
             thread("waitForNext");
         }
     }
+    
+    // Countdown as long ass pizzas are being added, else send the order
     //While there are pizzas being added to the toOrder array we keep resetting the counter
-//When the counter is done we sent the complete order (this prevents sending every pizza in a different order)
+    //When the counter is done we sent the complete order (this prevents sending every pizza in a different order)
     void waitForNext(){
         waitingForNext = true;
         System.out.println("waitingForNext set to true");
@@ -106,7 +109,8 @@ import java.util.*;
         waitingForNext = false;
     }
 
-
+    
+    // Sends the order to the pizza delevery guys
     void order(){
         //Read the pizza names from the toOrder array
         String pizzaNames = "";
@@ -149,11 +153,13 @@ import java.util.*;
     void feedbackEvent(OOCSIEvent event) {
         String id = event.getString("id");
         System.out.println("A response has been received with id: " + id);
+        // When the order is accepted we notify the user
         if (event.getString("reply").toLowerCase().indexOf("true")!= -1){
             oocsi.channel(choosePizzaChannel).data("success", "Order accepted").send();
             System.out.println("Order accepted");
             oocsi.channel("tweetBot").data("tweet", "Hi user " + id + ", your pizza was ordered sucssesfully.").send();
         }
+        // When the order is not exepted we try again at a different pizza place
         else {
             oocsi.channel(choosePizzaChannel).data("success", "Order failed, trying somehwere else").send();
             System.out.println("Order failed");
