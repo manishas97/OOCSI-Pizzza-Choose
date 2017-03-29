@@ -22,6 +22,8 @@ To change these settings over OOCSI sent the following command where SETTING is 
 oocsi.channel("choosePizza").data("settings", "").data(SETTING, VALUE).send();
 ``` 
 
+Note that this module requires the oocsi-pizzamail service to be running. This service can be found at https://github.com/leinelissen/oocsi-pizzamail.
+
 Also make sure you have installed the [OOCSI-processing](https://github.com/iddi/oocsi-processing) package.
 
 
