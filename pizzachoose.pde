@@ -20,6 +20,7 @@ import java.util.*;
     boolean waitingForNext = false; //Stores whether we are already collecting an order
     ArrayList<ArrayList<Pizza>> ordered = new ArrayList<ArrayList<Pizza>>(); //Stores past orders
     HashMap<String,ArrayList<Pizza>> ordersTracker = new HashMap<String, ArrayList<Pizza>>(); //Connects an id to past order
+    ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
     
     public void settings() {
         size(500, 500);
@@ -32,6 +33,8 @@ import java.util.*;
         oocsi.subscribe(feedbackChannel, "feedbackEvent");
         oocsi.subscribe(choosePizzaChannel, "choosePizzaEvent");
         System.out.println("Start");
+        
+        // Actually define available Pizza's
     }
 
     //Event listener to receive the button presses
@@ -54,12 +57,6 @@ import java.util.*;
             oocsi.channel("choosePizza").data("pizza", "The user id was not correct").send();
             return;
         }
-
-        //List of possible pizzas (has to be set manually)
-        ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
-        pizzas.add(new Pizza("Hawai"));
-        pizzas.add(new Pizza("Salami"));
-        pizzas.add(new Pizza("Fungi"));
 
         //Select a pizza at random from the array pizzas
         Random rand = new Random();
@@ -161,19 +158,6 @@ import java.util.*;
 
     }
 
-    // Object type to store information about pizzas.
-    // More variables can be added for when we want to change the probabilities based on emotions
-    public class Pizza {
-        String name; //Unique name of the pizza
-
-        public Pizza(String name) {
-            this.name = name;
-        }
-
-        public String getName(){
-            return name;
-        }
-    }
 
 
     public void draw(){
