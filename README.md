@@ -30,7 +30,7 @@ Also make sure you have installed the [OOCSI-processing](https://github.com/iddi
 Ordering pizza(s) is done using the following command:
 
 ```java
-oocsi.channel("choosePizza").data("buttonPress", ).send();
+oocsi.channel("choosePizza").data("buttonPress", "").send();
 ```
 
 Ordering multiple pizzas can be done by pressing the button multiple times with a maximum time interval of 100 seconds. When the 100 seconds have passed since the last button press the order will be placed.
