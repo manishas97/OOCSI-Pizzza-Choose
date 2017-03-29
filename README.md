@@ -36,3 +36,5 @@ oocsi.channel("choosePizza").data("buttonPress", "").send();
 ```
 
 Ordering multiple pizzas can be done by pressing the button multiple times with a maximum time interval of 100 seconds. When the 100 seconds have passed since the last button press the order will be placed.
+
+Ordering a pizza will result in an email being sent to one of the pizzarias defined in the Pizzeria.pde file. This pizza will be randomly chosen from the pizzas available at one of these pizza places. The pizzaria can responde with 'true' to this email to indicate that your order has been accepted. Otherwise the pizzaplace can response with 'false' after which a new order will be placed at a different pizzaria. One we are able to use the mood module we will have the mood influence the likelyhood of ordering a certain pizza. Feedback of this procces will be provided over the same oocsi channel as you sent the button press. When the order is accepted a tweet will be sent out metioning your twitter handle.
