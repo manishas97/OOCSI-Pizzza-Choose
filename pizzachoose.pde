@@ -8,13 +8,9 @@ import java.util.*;
 OOCSI oocsi;
 
 //Global variables
-ArrayList<Pizza> toOrder = new ArrayList<Pizza>();     //Stores the pizzas which need to be ordered
-int userId = 1;     //Stores the user id of the sender of the event
 boolean pizzaAdded = false;     //Tracks wheter a new pizza was added to the order to be able to reset the counter
 boolean waitingForNext = false;     //Stores whether we are already collecting an order
-ArrayList<ArrayList<Pizza> > ordered = new ArrayList<ArrayList<Pizza> >();   //Stores past orders
-HashMap<String,ArrayList<Pizza> > ordersTracker = new HashMap<String, ArrayList<Pizza> >();   //Connects an id to past order
-
+int pizzaQueue = 0;
 
 //Setting variables, to be set in the setup method
 String oocsiServer;
@@ -36,6 +32,14 @@ public void settings() {
 */
 
 public void setup() {
+    // Settings
+    oocsiServer = "oocsi.id.tue.nl"; //The OOCSI server you want to listen on. For example: "oocsi.id.tue.nl".
+    feedbackChannel = "choosePizzaService"; //The channel on which we will receive feedback from the email module.
+    choosePizzaChannel = "choosePizza"; //The channel you want to be listening on for calls to this module. For example: "choosePizza".
+    address = null; //The address where the pizzas will have to be delivered. For example: streetname 99 Eindhoven
+    twitterAccount = null; //The Twitter account to which the feedback will be sent.
+    allergies.add(""); //A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function.
+
 
     //Setup oocsi using the variables set in settings
     oocsi = new OOCSI(this, feedbackChannel, oocsiServer);
@@ -46,15 +50,6 @@ public void setup() {
     // Actually define available Pizzas and Pizzerias
     definePizzas();
     definePizzerias();
-
-    // Settings
-    oocsiServer = "oocsi.id.tue.nl"; //The OOCSI server you want to listen on. For example: "oocsi.id.tue.nl".
-    feedbackChannel = "choosePizzaService"; //The channel on which we will receive feedback from the email module.
-    choosePizzaChannel = "choosePizza"; //The channel you want to be listening on for calls to this module. For example: "choosePizza".
-    address = null; //The address where the pizzas will have to be delivered. For example: streetname 99 Eindhoven
-    twitterAccount = null; //The Twitter account to which the feedback will be sent.
-    allergies.add(""); //A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function.
-
 }
 
 /**
@@ -113,17 +108,10 @@ void modifySettings(OOCSIEvent event){
 
 // Adds a pizza to the order or creates a new order if no order exists.
 void buttonPressed(){
-    //Select a pizza at random from the array pizzas
-    Random rand = new Random();
-    int random = rand.nextInt(pizzas.size());
+    // Add a pizza to the queue
+    pizzaQueue++;
 
-    System.out.println("Adding pizza to the toOrder list.");
-    //Stores the chosen pizza in the array toOrder
-    toOrder.add(pizzas.get(random));
-    //Recorders that a new pizza was added to allow the counter to be resetted
-    pizzaAdded = true;
-
-    //If there is no counter running start the counter
+    // If there is no counter running start the counter
     if (!waitingForNext) {
         thread("waitForNext");
     }
@@ -140,10 +128,9 @@ void buttonPressed(){
 //When the counter is done we sent the complete order (this prevents sending every pizza in a different order)
 void waitForNext(){
     waitingForNext = true;
-    System.out.println("waitingForNext set to true");
     for (int i = 0; i <= 100; i++) {
         delay(100);
-        System.out.println(i);
+        System.out.print(i + " - ");
         i++;
         if (pizzaAdded == true) {
             i = 0;
@@ -165,13 +152,51 @@ void waitForNext(){
 
 // Sends the order to the pizza delevery guys
 void order(){
-    //Read the pizza names from the toOrder array
-    String pizzaNames = "";
-    for (int i = 0; i < toOrder.size(); i++) {
-        pizzaNames = pizzaNames + ", " + toOrder.get(i).getName();
+    // Create list with pizza's that are to be ordered
+    HashMap<Pizza, Integer> order = new HashMap<Pizza, Integer>();
+    
+    // Select a pizzeria by random
+    Pizzeria pizzeria = getRandomPizzeria();
+    
+    // Get constrained pizzalist from pizzeria
+    ArrayList<Pizza> pizzaList = pizzeria.pizzas(allergies);
+    
+    // Get mood
+    String mood = "Happy";
+    
+    // Create a list with weighted pizza options
+    ArrayList<Pizza> pizzaOptions = new ArrayList<Pizza>();
+    for(Pizza pizza : pizzaList){
+        pizzaOptions.add(pizza);
+        if(pizza.getMood() == mood){
+            pizzaOptions.add(pizza);
+        }
     }
-    System.out.println(pizzaNames);
-
+    
+    // Order all pizzas
+    for(int i = 0; i < pizzaQueue; i++){
+        // Retrieve random pizza
+        Random rand = new Random();
+        int random = rand.nextInt(pizzaOptions.size());
+        Pizza pizza = pizzaOptions.get(random);
+        
+        if(order.get(pizza) == null){
+            // If key does not exist, set it to 1
+            order.put(pizza, 1);
+        } else{
+            // If key does exist, increase it by 1
+            order.put(pizza, order.get(pizza) + 1);
+        }
+    }
+    
+    // Initialise email message
+    String pizzaNames = "\n";
+   
+    // Count up all pizza's
+    for(Pizza pizza : order.keySet()){
+        pizzaNames += "- " + order.get(pizza) + "x " + pizza.getName() + "\n";  
+    }
+    
     //Order the pizza using the pizzaMail module
     OOCSICall orderCall = oocsi.call("PizzaMail", 20000)
     // to address
@@ -188,18 +213,12 @@ void order(){
         OOCSIEvent response = orderCall.getFirstResponse();
         if(response.getBoolean("success", false) == true) {
             System.out.println("The email was sent!");
-            ArrayList<Pizza> copy = new ArrayList<Pizza>(toOrder);
-            ordersTracker.put(response.getString("id"), copy);
-            System.out.println("Id in order: " + response.getString("id") + " OrdersTracker to string: " + ordersTracker.toString());
+            System.out.println("Id in order: " + response.getString("id"));
         }
         else {
             System.out.println("The mail could not be send:" + response);
         }
     }
-
-    //Record that we sent the order and clear the toOrder array.
-    toOrder.clear();
-    System.out.println("toOrder is cleared since the order has been placed");
 }
 
 /**
@@ -213,27 +232,20 @@ void feedbackEvent(OOCSIEvent event) {
     String id = event.getString("id");
     System.out.println("A response has been received with id: " + id);
     // When the order is accepted we notify the user
-    if (event.getString("reply").toLowerCase().indexOf("true")!= -1) {
+    if (event.getString("reply").toLowerCase().indexOf("true") != -1) {
         oocsi.channel(choosePizzaChannel).data("success", "Order accepted").send();
         System.out.println("Order accepted");
+        pizzaQueue = 0;
         oocsi.channel("tweetBot").data("tweet", "Hi @" + twitterAccount + ", your pizza(s) were ordered sucssesfully. Time to get ready for your pizza adventure :D").send();
     }
     // When the order is not exepted we try again at a different pizza place
     else {
         oocsi.channel(choosePizzaChannel).data("success", "Order failed, trying somehwere else").send();
-        System.out.println("Order failed");
-        System.out.println("Id in feedbackEvent" + id);
-        System.out.println("ordersTracker tostring: " + ordersTracker.toString());
-        System.out.println(ordersTracker.containsKey(id));
-        toOrder = ordersTracker.get(id);
-        System.out.println("ToOrder size: "+ toOrder.size());
-        System.out.println(toOrder.toString());
+        System.out.println("Order failed, trying again.");
         order();
     }
 
 }
-
-
 
 public void draw(){
     background(255);

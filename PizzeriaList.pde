@@ -2,6 +2,8 @@ ArrayList<Pizzeria> pizzerias = new ArrayList<Pizzeria>();
 
 void definePizzerias(){
   pizzerias.add(new Pizzeria("Domino's", "eindhoven@dominospizza.nl", new String[]{"Margeritha"}));
+  pizzerias.add(new Pizzeria("Domino's", "eindhoven@dominospizza.nl", new String[]{"Margeritha", "Fungi", "Americana", "Hawaii"}));
+  pizzerias.add(new Pizzeria("Domino's", "eindhoven@dominospizza.nl", new String[]{"Margeritha"}));
 }
 
 public class Pizzeria{
@@ -13,6 +15,7 @@ public class Pizzeria{
     public Pizzeria(String name, String email, String[] suppliedPizzas){
         this.name = name;
         this.email = email;
+        this.availablePizzas = new ArrayList<Pizza>();
         
         // Loop through supplied pizzalist
         for (String pizzaName : Arrays.asList(suppliedPizzas)){
@@ -35,8 +38,15 @@ public class Pizzeria{
         return email;  
     }
     
-    public ArrayList<Pizza> pizzas(){
-        return availablePizzas;  
+    public ArrayList<Pizza> pizzas(ArrayList<String> allergens){
+        ArrayList<Pizza> pizzaList = new ArrayList<Pizza>();
+        
+        for(Pizza pizza : availablePizzas){
+            if(!allergens.contains(pizza.getName())){
+                pizzaList.add(pizza);  
+            }
+        }
+        return pizzaList;  
     }
     
     public Pizza randomPizza(){
@@ -45,4 +55,12 @@ public class Pizzeria{
         
         return availablePizzas.get(random);
     }
+
+}
+
+Pizzeria getRandomPizzeria(){
+    Random rand = new Random();
+    int random = rand.nextInt(pizzerias.size());  
+    
+    return pizzerias.get(random);    
 }

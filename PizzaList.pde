@@ -29,6 +29,10 @@ public class Pizza {
     public String getName(){
         return name;
     }
+    
+    public String getMood(){
+        return "Sad";  
+    }
 
     // Return Pizza allergens
     public String[] getAllergens(){
