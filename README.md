@@ -46,7 +46,7 @@ Also make sure you have installed the [OOCSI-processing](https://github.com/iddi
 
 ## Example code
 
-```
+``` java
 import nl.tue.id.oocsi.*;
 
 // ******************************************************
