@@ -14,7 +14,7 @@ import java.util.*;
     boolean waitingForNext = false; //Stores whether we are already collecting an order
     ArrayList<ArrayList<Pizza>> ordered = new ArrayList<ArrayList<Pizza>>(); //Stores past orders
     HashMap<String,ArrayList<Pizza>> ordersTracker = new HashMap<String, ArrayList<Pizza>>(); //Connects an id to past order
-    ArrayList<Pizza> pizzas = new ArrayList<Pizza>();
+
     
     //Setting variables, to be set in the setup method
     String oocsiServer;
@@ -37,6 +37,11 @@ import java.util.*;
         oocsi.subscribe(choosePizzaChannel, "choosePizzaEvent");
         System.out.println("Start");
         
+<<<<<<< HEAD
+        // Actually define available Pizzas and Pizzerias
+        definePizzas();
+        definePizzerias();
+=======
         // Settings
         oocsiServer = "oocsi.id.tue.nl"; //The OOCSI server you want to listen on. For example: "oocsi.id.tue.nl".
         feedbackChannel = "choosePizzaService"; //The channel on which we will receive feedback from the email module.
@@ -45,6 +50,7 @@ import java.util.*;
         twitterAccount = null; //The Twitter account to which the feedback will be sent. 
         allergies.add(""); //A list of allergies. The following allergies can be specified: Gluten, Milk, Soy and Seafood. Note that allergies should be specified including the capitals. Only one allergy can be added per add function.
        
+>>>>>>> d9b9dd17578577902c22eff3ef2fb14746b04558
     }
 
     //Event listener to receive the button presses and setting changes
